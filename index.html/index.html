@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İşletme Hisse Değeri Takibi ve Bilanço</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    text-align: center;
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.balance-sheet {
+    margin-top: 30px;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The Parnikland company</h1>
+        
+
+        <!-- Hisse Grafiği -->
+        <canvas id="stockChart" width="400" height="200"></canvas>
+
+        <!-- Genişletilmiş Bilanço Bölümü -->
+        <div class="balance-sheet">
+            <h2>İşletme Bilançosu</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kalem</th>
+                        <th>Miktar (manat)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Varlıklar</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Dönen Varlıklar</td>
+                        <td id="currentAssets">250,000 TL</td>
+                    </tr>
+                    <tr>
+                        <td>Duran Varlıklar</td>
+                        <td id="fixedAssets">300,000 TL</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Borçlar</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Kısa Vadeli Borçlar</td>
+                        <td id="shortTermLiabilities">100,000 TL</td>
+                    </tr>
+                    <tr>
+                        <td>Uzun Vadeli Borçlar</td>
+                        <td id="longTermLiabilities">150,000 TL</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Öz Sermaye</strong></td>
+                        <td id="equity">300,000 TL</td>
+                    </tr>
+                    <!-- Eklenen Kalemler -->
+                    <tr>
+                        <td>Gelir Sermaye Nispeti</td>
+                        <td id="incomeEquityRatio">0.5</td>
+                    </tr>
+                    <tr>
+                        <td>Net Kar</td>
+                        <td id="netProfit">100,000 TL</td>
+                    </tr>
+                    <tr>
+                        <td>Net Borç</td>
+                        <td id="netDebt">150,000 TL</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+   <h3> The Parnikland company 510 hissədən ibarətdir.Bu hissələrin 120-si Ayla Fərəcovaya , 390 hissə isə Aslan Fərəcova məxsusdur.</h3>
+
+    <script src="script.js"></script>
+    <script>
+      // Başlangıç hisse verileri
+let stockData = [5, 5]; // Hisse değerleri
+let labels = ['1 sentiyabr', '15 sentiyabr']; // Tarihler
+
+// Grafik oluşturma
+let ctx = document.getElementById('stockChart').getContext('2d');
+let stockChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Hisse Değeri (man)',
+            data: stockData,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: false
+            }
+        }
+    }
+});
+
+// Başlangıç bilanço verileri
+let currentAssets = 250000; // Dönen Varlıklar
+let fixedAssets = 300000; // Duran Varlıklar
+let shortTermLiabilities = 100000; // Kısa Vadeli Borçlar
+let longTermLiabilities = 150000; // Uzun Vadeli Borçlar
+let totalAssets = currentAssets + fixedAssets; // Toplam Varlıklar
+let totalLiabilities = shortTermLiabilities + longTermLiabilities; // Toplam Borçlar
+let equity = totalAssets - totalLiabilities; // Öz Sermaye
+
+// Ek bilanço verileri
+let netProfit = 100000; // Net Kar
+let netDebt = totalLiabilities; // Net Borç (toplam borçlar)
+let incomeEquityRatio = (netProfit / equity).toFixed(2); // Gelir Sermaye Nispeti
+
+// Bilanço verilerini sayfada göster
+document.getElementById('currentAssets').innerText = currentAssets.toLocaleString() + ' man';
+document.getElementById('fixedAssets').innerText = fixedAssets.toLocaleString() + ' man';
+document.getElementById('shortTermLiabilities').innerText = shortTermLiabilities.toLocaleString() + ' man';
+document.getElementById('longTermLiabilities').innerText = longTermLiabilities.toLocaleString() + ' man';
+document.getElementById('equity').innerText = equity.toLocaleString() + ' man';
+
+// Ek kalemleri sayfada göster
+document.getElementById('netProfit').innerText = netProfit.toLocaleString() + ' man';
+document.getElementById('netDebt').innerText = netDebt.toLocaleString() + ' man';
+document.getElementById('incomeEquityRatio').innerText = incomeEquityRatio;
+
+// Yeni hisse değerleri eklemek için
+function addNewStockValue(newStockValue, dateLabel) {
+    stockData.push(newStockValue);
+    labels.push(dateLabel);
+    stockChart.update();
+}
+
+// Örnek: Yeni hisse değeri eklemek
+addNewStockValue(5, '30 sentiyabr');
+
+// Bilanço verilerini güncellemek isterseniz:
+currentAssets = 0;
+fixedAssets = 2550;
+shortTermLiabilities = 20;
+longTermLiabilities = 0;
+netProfit = 0;
+
+totalAssets = currentAssets + fixedAssets;
+totalLiabilities = shortTermLiabilities + longTermLiabilities;
+equity = totalAssets - totalLiabilities;
+netDebt = totalLiabilities;
+incomeEquityRatio = (netProfit / equity).toFixed(2);
+
+// Güncellenen bilanço verilerini sayfada göstermek
+document.getElementById('currentAssets').innerText = currentAssets.toLocaleString() + ' man';
+document.getElementById('fixedAssets').innerText = fixedAssets.toLocaleString() + ' man';
+document.getElementById('shortTermLiabilities').innerText = shortTermLiabilities.toLocaleString() + ' man';
+document.getElementById('longTermLiabilities').innerText = longTermLiabilities.toLocaleString() + ' man';
+document.getElementById('equity').innerText = equity.toLocaleString() + ' man';
+document.getElementById('netProfit').innerText = netProfit.toLocaleString() + ' man';
+document.getElementById('netDebt').innerText = netDebt.toLocaleString() + ' man';
+document.getElementById('incomeEquityRatio').innerText = incomeEquityRatio;
+
+    </script>
+</body>
+</html>
