@@ -1,58 +1,65 @@
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <DHT.h>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sıcaklık Takibi</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Sera Sıcaklık Takibi</h2>
+    <canvas id="tempChart" width="400" height="200"></canvas>
 
-#define DHTPIN 4         // DHT sensörünün bağlı olduğu pin (GPIO 4)
-#define DHTTYPE DHT11    // DHT tipi (DHT11 veya DHT22)
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch('get_data.php');
+                const data = await response.json();
 
-const char* ssid = "WiFi_ADI"; 
-const char* password = "WiFi_ŞİFRESİ";
-const char* server = "http://seninsite.com/data.php"; // Web sitesi URL'si
+                const labels = data.map(item => item.time);
+                const temperatures = data.map(item => item.temperature);
 
-DHT dht(DHTPIN, DHTTYPE);
+                const ctx = document.getElementById('tempChart').getContext('2d');
+                if (window.tempChart) window.tempChart.destroy(); // Önceki grafik varsa sil
 
-void setup() {
-  Serial.begin(115200);
-  dht.begin();
-  
-  WiFi.begin(ssid, password);
-  Serial.print("Wi-Fi'ye bağlanıyor");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
-  }
-  Serial.println("\nWi-Fi bağlandı!");
-}
+                window.tempChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Sıcaklık (°C)',
+                            data: temperatures,
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Zaman'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Sıcaklık (°C)'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Veri çekilirken hata oluştu:', error);
+            }
+        }
 
-void loop() {
-  float temperature = dht.readTemperature();
-  
-  if (!isnan(temperature)) {
-    Serial.print("Sıcaklık: ");
-    Serial.println(temperature);
-
-    if (WiFi.status() == WL_CONNECTED) {
-      HTTPClient http;
-      http.begin(server);
-
-      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-      String postData = "temp=" + String(temperature);
-      int httpResponseCode = http.POST(postData);
-
-      if (httpResponseCode > 0) {
-        String response = http.getString();
-        Serial.println("Sunucu Yanıtı: " + response);
-      } else {
-        Serial.print("Bağlantı hatası: ");
-        Serial.println(httpResponseCode);
-      }
-
-      http.end();
-    }
-  } else {
-    Serial.println("Sensör verisi okunamıyor!");
-  }
-  
-  delay(5000); // 5 saniyede bir veri gönder
-}
+        // Sayfa yüklendiğinde veriyi çek
+        fetchData();
+        // 5 saniyede bir güncelle
+        setInterval(fetchData, 5000);
+    </script>
+</body>
+</html>
